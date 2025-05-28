@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Perfect Match{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Welcome, {{ user.first_name|default:user.username }}!</h2>
+        </div>
+    </div>
+    
+    {% if not user_profile %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h5><i class="fas fa-exclamation-triangle"></i> Complete Your Profile</h5>
+                <p>Please complete your profile to start browsing and connecting with potential matches.</p>
+                <a href="{% url 'profiles:create' %}" class="btn btn-primary">Create Profile</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    
+    <!-- Profile Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            {% if not user_profile.is_approved %}
+            <div class="alert alert-info">
+                <i class="fas fa-clock"></i> Your profile is under review. It will be visible to others once approved by admin.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-eye fa-2x text-primary mb-2"></i>
+                    <h4>{{ profile_views }}</h4>
+                    <p class="card-text">Profile Views</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-heart fa-2x text-danger mb-2"></i>
+                    <h4>{{ user_profile.received_interests.count }}</h4>
+                    <p class="card-text">Interests Received</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-paper-plane fa-2x text-success mb-2"></i>
+                    <h4>{{ user_profile.sent_interests.count }}</h4>
+                    <p class="card-text">Interests Sent</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                    <h4>{% if user_profile.is_featured %}Yes{% else %}No{% endif %}</h4>
+                    <p class="card-text">Featured Profile</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Profile Management</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'profiles:my_profile' %}" class="btn btn-outline-primary">View My Profile</a>
+                        <a href="{% url 'profiles:edit' %}" class="btn btn-outline-secondary">Edit Profile</a>
+                        <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-warning">Change Password</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Find Matches</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'core:browse' %}" class="btn btn-outline-primary">Browse Profiles</a>
+                        <a href="{% url 'profiles:interests' %}" class="btn btn-outline-success">View Interests</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock"></i> Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_profile.received_interests.all %}
+                        <h6>Recent Interests Received:</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for interest in user_profile.received_interests.all|slice:":5" %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ interest.sender.user.first_name }}</strong> sent you an interest
+                                    <br><small class="text-muted">{{ interest.created_at|timesince }} ago</small>
+                                </div>
+                                <span class="badge bg-{{ interest.status|yesno:'success,warning,danger' }}">{{ interest.get_status_display }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="mt-3">
+                            <a href="{% url 'profiles:interests' %}" class="btn btn-sm btn-primary">View All Interests</a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent activity to show.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% endif %}
+</div>
+{% endblock %}

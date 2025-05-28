@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Perfect Match - Matrimonial Website{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #e91e63;
+            --secondary-color: #f8f9fa;
+            --accent-color: #ff4081;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--primary-color) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 100px 0;
+        }
+        
+        .profile-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .profile-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 40px 0;
+            margin-top: 50px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .filter-sidebar {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'core:home' %}">
+                <i class="fas fa-heart"></i> Perfect Match
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:browse' %}">Browse Profiles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:contact' %}">Contact</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ user.first_name|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'core:dashboard' %}">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profiles:my_profile' %}">My Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profiles:interests' %}">Interests</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profiles:edit' %}">Edit Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Change Password</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary ms-2" href="{% url 'accounts:register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-heart"></i> Perfect Match</h5>
+                    <p>Find your perfect life partner with our trusted matrimonial platform.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'core:home' %}" class="text-light">Home</a></li>
+                        <li><a href="{% url 'core:browse' %}" class="text-light">Browse Profiles</a></li>
+                        <li><a href="{% url 'core:about' %}" class="text-light">About Us</a></li>
+                        <li><a href="{% url 'core:contact' %}" class="text-light">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Info</h5>
+                    <p><i class="fas fa-envelope"></i> info@perfectmatch.com</p>
+                    <p><i class="fas fa-phone"></i> +1 234 567 8900</p>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2024 Perfect Match. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

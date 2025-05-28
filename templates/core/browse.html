@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Profiles - Perfect Match{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <h5><i class="fas fa-filter"></i> Filter Profiles</h5>
+                <form method="get" class="mt-3">
+                    <div class="mb-3">
+                        <label class="form-label">Search</label>
+                        <input type="text" name="search" class="form-control" value="{{ request.GET.search }}" placeholder="Name, occupation, education...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Religion</label>
+                        <select name="religion" class="form-control">
+                            <option value="">All Religions</option>
+                            {% for religion in religions %}
+                                {% if religion %}
+                                <option value="{{ religion }}" {% if request.GET.religion == religion %}selected{% endif %}>{{ religion }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Caste</label>
+                        <select name="caste" class="form-control">
+                            <option value="">All Castes</option>
+                            {% for caste in castes %}
+                                {% if caste %}
+                                <option value="{{ caste }}" {% if request.GET.caste == caste %}selected{% endif %}>{{ caste }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">Min Age</label>
+                                <input type="number" name="min_age" class="form-control" value="{{ request.GET.min_age }}" min="18" max="80">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">Max Age</label>
+                                <input type="number" name="max_age" class="form-control" value="{{ request.GET.max_age }}" min="18" max="80">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Education</label>
+                        <select name="education" class="form-control">
+                            <option value="">All Education</option>
+                            {% for education in educations %}
+                                {% if education %}
+                                <option value="{{ education }}" {% if request.GET.education == education %}selected{% endif %}>{{ education }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Occupation</label>
+                        <select name="occupation" class="form-control">
+                            <option value="">All Occupations</option>
+                            {% for occupation in occupations %}
+                                {% if occupation %}
+                                <option value="{{ occupation }}" {% if request.GET.occupation == occupation %}selected{% endif %}>{{ occupation }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <a href="{% url 'core:browse' %}" class="btn btn-outline-secondary">Clear Filters</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Profiles Grid -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Browse Profiles ({{ profiles|length }} found)</h3>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary active" id="gridView">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="listView">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+            
+            {% if profiles %}
+            <div class="row" id="profilesContainer">
+                {% for profile in profiles %}
+                <div class="col-lg-4 col-md-6 mb-4 profile-item">
+                    <div class="card profile-card h-100">
+                        {% if profile.photo %}
+                            <img src="{{ profile.photo.url }}" class="card-img-top profile-image" alt="Profile Photo">
+                        {% else %}
+                            <div class="card-img-top profile-image bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user fa-3x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        {% if profile.is_featured %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-warning"><i class="fas fa-star"></i> Featured</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h5 class="card-title">{{ profile.user.first_name }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-birthday-cake"></i> {{ profile.age }} years<br>
+                                    <i class="fas fa-briefcase"></i> {{ profile.occupation }}<br>
+                                    <i class="fas fa-graduation-cap"></i> {{ profile.education }}<br>
+                                    <i class="fas fa-map-marker-alt"></i> {{ profile.location }}
+                                </small>
+                            </p>
+                            {% if profile.bio %}
+                            <p class="card-text">{{ profile.bio|truncatewords:15 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'profiles:detail' profile.pk %}" class="btn btn-primary btn-sm">View Profile</a>
+                                {% if user.is_authenticated and user != profile.user %}
+                                <a href="{% url 'profiles:send_interest' profile.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-heart"></i> Interest
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4>No profiles found</h4>
+                <p class="text-muted">Try adjusting your search filters to find more matches.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('gridView').addEventListener('click', function() {
+    document.querySelectorAll('.profile-item').forEach(item => {
+        item.className = 'col-lg-4 col-md-6 mb-4 profile-item';
+    });
+    this.classList.add('active');
+    document.getElementById('listView').classList.remove('active');
+});
+
+document.getElementById('listView').addEventListener('click', function() {
+    document.querySelectorAll('.profile-item').forEach(item => {
+        item.className = 'col-12 mb-4 profile-item';
+    });
+    this.classList.add('active');
+    document.getElementById('gridView').classList.remove('active');
+});
+</script>
+{% endblock %}

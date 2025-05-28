@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile.user.first_name }}'s Profile - Perfect Match{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                {% if profile.photo %}
+                    <img src="{{ profile.photo.url }}" class="card-img-top" style="height: 400px; object-fit: cover;" alt="Profile Photo">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <i class="fas fa-user fa-5x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body text-center">
+                    <h4>{{ profile.user.first_name }} {{ profile.user.last_name }}</h4>
+                    <p class="text-muted">{{ profile.age }} years old</p>
+                    
+                    {% if profile.is_featured %}
+                    <span class="badge bg-warning mb-2"><i class="fas fa-star"></i> Featured</span>
+                    {% endif %}
+                    
+                    {% if user.is_authenticated and user != profile.user %}
+                        {% if not interest_sent %}
+                        <div class="d-grid">
+                            <a href="{% url 'profiles:send_interest' profile.pk %}" class="btn btn-primary">
+                                <i class="fas fa-heart"></i> Send Interest
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-check"></i> Interest already sent
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Profile Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Gender:</strong></div>
+                        <div class="col-sm-8">{{ profile.gender }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Religion:</strong></div>
+                        <div class="col-sm-8">{{ profile.religion }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Caste:</strong></div>
+                        <div class="col-sm-8">{{ profile.caste }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Mother Tongue:</strong></div>
+                        <div class="col-sm-8">{{ profile.mother_tongue }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Marital Status:</strong></div>
+                        <div class="col-sm-8">{{ profile.marital_status }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Height:</strong></div>
+                        <div class="col-sm-8">{{ profile.height }}</div>
+                    </div>
+                    
+                    {% if profile.weight %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Weight:</strong></div>
+                        <div class="col-sm-8">{{ profile.weight }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Occupation:</strong></div>
+                        <div class="col-sm-8">{{ profile.occupation }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Education:</strong></div>
+                        <div class="col-sm-8">{{ profile.education }}</div>
+                    </div>
+                    
+                    {% if profile.annual_income %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Annual Income:</strong></div>
+                        <div class="col-sm-8">{{ profile.annual_income }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Location:</strong></div>
+                        <div class="col-sm-8">{{ profile.location }}</div>
+                    </div>
+                    
+                    {% if profile.bio %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>About:</strong></div>
+                        <div class="col-sm-8">{{ profile.bio }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
